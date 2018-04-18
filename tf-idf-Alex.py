@@ -173,7 +173,7 @@ def tfIdf(terms, documents):
 	print "\n===========\ntfidf-matrix\n", tfidf
 	return 0
 
-def VectorSpaceModelImplementation(docList, separators, stopwords, query):
+def TFIDFImplementation(docList, separators, stopwords, query):
 	print docList,separators,stopwords,query
 	finalDocList=tokenize(docList,separators)
 	finalQuery=tokenize(query,separators)
@@ -194,4 +194,4 @@ def VectorSpaceModelImplementation(docList, separators, stopwords, query):
 #PROGRAMA COMEÇA EXECUÇÃO AQUI
 print 'START\n'
 #booleanModelImplementation(DOCS,separators1,stopwords1,[query1]) 
-VectorSpaceModelImplementation(DOCS,separators1,stopwords1,[query1])
+TFIDFImplementation(DOCS,separators1,stopwords1,[query1])
