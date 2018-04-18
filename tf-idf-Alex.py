@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #trabalho de Recuperação da Informação 
-#Autor: Alex Pungartnik Handel
+#Autor: Alex Pungartnik Handel   
+import numpy as np
 
 
 DOCS=['O peã e o caval são pec de xadrez. O caval é o melhor do jog.',
@@ -64,7 +65,6 @@ def buildIncidenceMatrix(documents,wordList):
 
 
 
-
 def booleanModelImplementation(docList,separators,stopwords,query):
 	print docList,separators,stopwords,query
 	finalDocList=tokenize(docList,separators)
@@ -125,6 +125,73 @@ def booleanModelImplementation(docList,separators,stopwords,query):
 	
 	pass        
 
+def calculateTF(terms, documents):
+	print "\n*************\n", terms
+	tfMatrix=[]
+	for doc in documents: 
+		print doc
+		frequencies=[]
+		for word in terms:
+			count=doc.count(word)
+			tf=0
+			if count>0:
+				tf=1+np.log2(count)
+			frequencies.append(tf)
+		tfMatrix.append(frequencies)	
+	return tfMatrix
+
+def calculateIDF(terms, documents):
+	idfMatrix=[]
+	ndocs=len(documents)
+	for word in terms: 
+		frequencies=[]
+		count=0
+		for doc in documents:
+			if word in doc: count+=1
+		idf=np.log2(float(ndocs)/float(count))
+		idfMatrix.append(idf)
+	return idfMatrix
+
+def calculateTfIdf(tf,idf):
+	tfMatrix=tf
+	idfMatrix=idf
+	tfIdf=[]
+	for line in tfMatrix:
+		j=0
+		for element in line:
+			line[j]=line[j]*idfMatrix[j]
+			j+=1
+		tfIdf.append(line) 
+	return np.matrix(tfIdf).transpose()
+
+def tfIdf(terms, documents):
+	tfMatrix = calculateTF(terms, documents)
+	print "\n===========\ntf-matrix\n", tfMatrix
+	idfMatrix = calculateIDF(terms, documents)
+	print "\n===========\nidf-matrix\n", idfMatrix
+	tfidf=calculateTfIdf(tfMatrix,idfMatrix)
+	print "\n===========\ntfidf-matrix\n", tfidf
+	return 0
+
+def VectorSpaceModelImplementation(docList, separators, stopwords, query):
+	print docList,separators,stopwords,query
+	finalDocList=tokenize(docList,separators)
+	finalQuery=tokenize(query,separators)
+	
+
+	finalDocList=removeStopwords(finalDocList,stopwords)
+	finalQuery=removeStopwords(finalQuery,stopwords)
+
+	
+	wordList=buildWordList(finalDocList)
+	print finalDocList,finalQuery,wordList
+	tfIdfMatrix = tfIdf(wordList, finalDocList)
+
+
+	pass
+
+
 #PROGRAMA COMEÇA EXECUÇÃO AQUI
 print 'START\n'
-booleanModelImplementation(DOCS,separators1,stopwords1,[query1])
+#booleanModelImplementation(DOCS,separators1,stopwords1,[query1]) 
+VectorSpaceModelImplementation(DOCS,separators1,stopwords1,[query1])
