@@ -125,9 +125,10 @@ def booleanModelImplementation(docList,separators,stopwords,query):
 	
 	pass        
 
-def calculateTF(terms, documents):
+def calculateTF(terms, documents, query):
 	print "\n*************\n", terms
 	tfMatrix=[]
+	documents.append(*query)
 	for doc in documents: 
 		print doc
 		frequencies=[]
@@ -140,8 +141,9 @@ def calculateTF(terms, documents):
 		tfMatrix.append(frequencies)	
 	return tfMatrix
 
-def calculateIDF(terms, documents):
+def calculateIDF(terms, documents, query):
 	idfMatrix=[]
+	documents.append(*query)
 	ndocs=len(documents)
 	for word in terms: 
 		frequencies=[]
@@ -167,16 +169,34 @@ def calculateTfIdf(tf,idf):
 		tfIdf.append(line) 
 	return np.matrix(tfIdf).transpose()
 
-def tfIdf(terms, documents):
-	tfMatrix = calculateTF(terms, documents)
+def tfIdf(terms, documents, query):
+	tfMatrix = calculateTF(terms, documents, query)
 	print "\n===========\ntf-matrix\n", tfMatrix
-	idfMatrix = calculateIDF(terms, documents)
+	idfMatrix = calculateIDF(terms, documents, query)
 	print "\n===========\nidf-matrix\n", idfMatrix
 	tfidf=calculateTfIdf(tfMatrix,idfMatrix)
 	print "\n===========\ntfidf-matrix\n", tfidf
-	return 0
+	return tfidf
 
-def TFIDFImplementation(docList, separators, stopwords, query):
+def computeVectorSimilarity(d,q):
+	dnorm=np.linalg.norm(d)
+	qnorm=np.linalg.norm(q)
+	dotproduct=np.dot(d.tolist()[0],q.tolist()[0])
+	sim = dotproduct/(dnorm*qnorm)
+	return sim
+
+def calculateRankings(tfidf):
+	TfIdfMatrix=np.matrix(tfidf)
+	queryLine=TfIdfMatrix.transpose()[TfIdfMatrix.shape[1]-1]
+	documentLines = np.delete(TfIdfMatrix.transpose(),TfIdfMatrix.shape[1]-1,0)
+	simlist=[]
+	for line in documentLines:
+		similarity=computeVectorSimilarity(line,queryLine)
+		simlist.append(similarity)
+	indexedSimilarities=dict(enumerate(simlist))
+	return indexedSimilarities
+
+def VectorSpaceModelImplementation(docList, separators, stopwords, query):
 	print docList,separators,stopwords,query
 	finalDocList=tokenize(docList,separators)
 	finalQuery=tokenize(query,separators)
@@ -188,13 +208,20 @@ def TFIDFImplementation(docList, separators, stopwords, query):
 	
 	wordList=buildWordList(finalDocList)
 	print finalDocList,finalQuery,wordList
-	tfIdfMatrix = tfIdf(wordList, finalDocList)
-
-
+	TfIdfMatrix = tfIdf(wordList, finalDocList,finalQuery)
+	similarities = calculateRankings(TfIdfMatrix)
+	ranking = sorted(similarities, key=similarities.get)
+	print "\nRESULTADO DA CONSULTA:\n", [query1], "\n"
+	c=1
+	for rank in ranking[::-1]:
+		print c, ": documento numero", rank+1
+		print "Similaridade:", similarities[rank]
+		print DOCS[rank], "\n"
+		c+=1
 	pass
 
 
 #PROGRAMA COMEÇA EXECUÇÃO AQUI
 print 'START\n'
 #booleanModelImplementation(DOCS,separators1,stopwords1,[query1]) 
-TFIDFImplementation(DOCS,separators1,stopwords1,[query1])
+VectorSpaceModelImplementation(DOCS,separators1,stopwords1,[query1])
