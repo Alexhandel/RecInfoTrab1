@@ -229,16 +229,19 @@ def VectorSpaceModelImplementation(docList, separators, stopwords, query):
 def simbm25(document, incidence, wordList, query, avgDocLength, niList):
 	similarity=0
 	count=0
+	print document
 	for word in wordList:
-		Ni=niList[count]
-		freqij=incidence[count]
-		numerator=(K1+1)*freqij
-		denominator=K1*((1-b)+(b*len(document)/avgDocLength)) + freqij
-		beta=numerator/denominator
-		logTerm = np.log2((len(DOCS)-Ni+0.5)/(Ni+0.5))
-		similarity+=beta*logTerm
-		#print word, "\n", beta, "\n", logTerm, "\n", similarity
+		if word in query[0] and word in document:
+			Ni=niList[count]
+			freqij=incidence[count]
+			numerator=(K1+1)*freqij
+			denominator=(K1*((1-b)+(b*len(document)/avgDocLength))) + freqij
+			beta=numerator/denominator
+			logTerm = np.log2((len(DOCS)-Ni+0.5)/(Ni+0.5))
+			similarity+=beta*logTerm
+			#print word, "\n", beta, "\n", logTerm, "\n", similarity
 		count+=1
+	print "SIM: ", similarity, "\n"
 	return similarity
 
 def calculateRankingsProbabilistic(documents,query,docIncidence, wordList):
@@ -263,7 +266,6 @@ def calculateRankingsProbabilistic(documents,query,docIncidence, wordList):
 		similarity=simbm25(doc, docIncidence[count], wordList, query, avgDocLen, documentFrequencies)
 		finalRankings.append(similarity)
 		count+=1
-	finalRankings.sort()
 	return finalRankings
 
 def probabilisticModelImplementation(docList, separators, stopwords, query):
@@ -282,16 +284,16 @@ def probabilisticModelImplementation(docList, separators, stopwords, query):
 
 	print finalDocList, "\n--------\n", finalQuery, "\n--------\n", wordList, "\n--------\n", np.matrix(docIncidenceMatrix), "\n--------\n", queryIncidenceMatrix
 
-	rankings = calculateRankingsProbabilistic(finalDocList,finalQuery,docIncidenceMatrix,wordList)
-	print rankings   
-	similarities=dict(enumerate(rankings))    
+	rankings = calculateRankingsProbabilistic(finalDocList,finalQuery,docIncidenceMatrix,wordList)  
+	similarities=dict(enumerate(rankings))  
 	ranking = sorted(similarities, key=similarities.get)
 	print "\nRESULTADO DA CONSULTA:\n", [query1], "\n"
-	c=1
-	for rank in ranking[::-1]:
-		print c, ": documento numero", rank+1
-		print "Similaridade:", similarities[rank]
-		print DOCS[rank], "\n"
+	c=1       
+	for rank in ranking[::-1]:          
+		if similarities[rank]>=0:
+			print c, ": documento numero", rank+1
+			print "Similaridade:", similarities[rank]
+			print DOCS[rank], "\n"
 		c+=1
 	pass
 
