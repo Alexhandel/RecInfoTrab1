@@ -245,6 +245,15 @@ def interpolatedPrecision(recall, precision, recovered):
 		print i, maxvalue
 	pass
 
+def MAP(query, relevant, recovered):
+	n=len(R1)
+	soma=0
+	for i in relevant:
+		if i-1 in recovered:
+			soma+=calculatePrecision(R1, recovered[:recovered.index(i-1)+1])
+	result = soma/n
+	return result
+
 def VectorSpaceModelImplementation(docList, separators, stopwords, query):
 	print docList,separators,stopwords,query
 	finalDocList=tokenize(docList,separators)
@@ -290,6 +299,9 @@ def VectorSpaceModelImplementation(docList, separators, stopwords, query):
 			print "PRECISÃO: ", p
 	#precisão interpolada
 	interpolatedPrecision(recall, precision, tRanking)
+
+	MAPi=MAP(query, R1, tRanking)
+	print "\n\nMAP da consulta: ", MAPi
 	pass
 
 def simbm25(document, incidence, wordList, query, avgDocLength, niList):
@@ -381,6 +393,10 @@ def probabilisticModelImplementation(docList, separators, stopwords, query):
 
 	#precisão interpolada
 	interpolatedPrecision(recall, precision, tRanking)
+
+	MAPi=MAP(query, R1, tRanking)
+	print "\n\nMAP da consulta: ", MAPi
+
 	pass
 
 #PROGRAMA COMEÇA EXECUÇÃO AQUI
